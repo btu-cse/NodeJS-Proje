@@ -1,6 +1,6 @@
 const fs = require('fs');
-const pool = require('./db'); // Veritabanı bağlantısı için
-const nodemailer = require('nodemailer'); // E-posta gönderme
+const pool = require('./db');
+const nodemailer = require('nodemailer'); 
 
 require('dotenv').config();
 const period = process.env.period;
@@ -30,17 +30,15 @@ const transporter = nodemailer.createTransport({
 
 // Yedekleme ve raporlama fonksiyonu
 const generateBackup = async () => {
-  // Tüm öğrencileri veritabanından al
   const students = await fetchAllStudents();
 
-  // Öğrenci verilerini JSON formatına dönüştür
-  const studentData = JSON.stringify(students, null, 2); // Daha güzel formatlama için 2 boşluk girintisi
+  
+  const studentData = JSON.stringify(students, null, 2); 
 
-  // Yedekleme dosyası adı ve formatı
   const backupFileName = `./yedeks/ogrenci-yedek2-${Date.now()}.json`;
   const backupFilePath = `./${backupFileName}`;
 
-  // JSON dosyasını oluştur
+  
   fs.writeFileSync(backupFilePath, studentData);
 
   // E-posta hazırlama
@@ -64,13 +62,14 @@ const generateBackup = async () => {
   } catch (err) {
     console.error('Haftalık rapor gönderilirken hata oluştu:', err);
   } finally {
-    // Yedek dosyasını sil (isteğe bağlı)
     // fs.unlinkSync(backupFilePath);
   }
 };
 
-// Her 1 dakikada bir yedekleme oluştur ve gönder
-setInterval(generateBackup, 1000 * 60); // 1 dakika (milisecond cinsinden)
+// setInterval(generateBackup, 1000 * 60 * 60 * 24 * period);
 
-// Script'i ilk kez çalıştırmak için (ilk yedeklemeyi oluşturmak)
+setInterval(generateBackup, 1000 * 60*period); 
+
 generateBackup();
+
+module.exports = generateBackup;
